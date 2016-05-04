@@ -1,7 +1,7 @@
 /**********************************************************
  * Author        : nfalse
  * Email         : nfalse@163.com
- * Last modified : 2016-05-04 14:38
+ * Last modified : 2016-05-04 15:35
  * Filename      : overflow.c
  * Description   : 
  * *******************************************************/
@@ -10,12 +10,15 @@
 #define LEN 8
 void funcA(char* str)
 {
+	printf("正常代码调用\n");
 	char tmp[LEN];
 	strcpy(tmp,str);
+	return;
 }
-void funcB()
+void funcB(void *obj)
 {
 	printf("恶意代码被调用\n");
+	return;
 }
 void main()
 {
