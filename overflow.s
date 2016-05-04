@@ -6,7 +6,7 @@
 	.globl	funcA
 	.type	funcA, @function
 funcA:
-.LFB0:
+.LFB2:
 	.cfi_startproc
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
@@ -27,7 +27,7 @@ funcA:
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
-.LFE0:
+.LFE2:
 	.size	funcA, .-funcA
 	.section	.rodata
 .LC1:
@@ -36,7 +36,7 @@ funcA:
 	.globl	funcB
 	.type	funcB, @function
 funcB:
-.LFB1:
+.LFB3:
 	.cfi_startproc
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
@@ -47,17 +47,15 @@ funcB:
 	movq	%rdi, -8(%rbp)
 	movl	$.LC1, %edi
 	call	puts
-	nop
-	leave
-	.cfi_def_cfa 7, 8
-	ret
+	movl	$0, %edi
+	call	exit
 	.cfi_endproc
-.LFE1:
+.LFE3:
 	.size	funcB, .-funcB
 	.globl	main
 	.type	main, @function
 main:
-.LFB2:
+.LFB4:
 	.cfi_startproc
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
@@ -82,7 +80,7 @@ main:
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
-.LFE2:
+.LFE4:
 	.size	main, .-main
 	.ident	"GCC: (Debian 5.3.1-8) 5.3.1 20160205"
 	.section	.note.GNU-stack,"",@progbits

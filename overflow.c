@@ -6,6 +6,7 @@
  * Description   : 
  * *******************************************************/
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #define LEN 8
 void funcA(char* str)
@@ -18,6 +19,7 @@ void funcA(char* str)
 void funcB(void *obj)
 {
 	printf("恶意代码被调用\n");
+	exit(0);
 	return;
 }
 void main()
