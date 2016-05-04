@@ -20,7 +20,6 @@ void funcB(void *obj)
 {
 	printf("恶意代码被调用\n");
 	exit(0);
-	return;
 }
 void main()
 {
