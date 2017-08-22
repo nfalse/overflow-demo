@@ -26,5 +26,3 @@ $./overflow
 
  恶意代码被调用
 
- Segmentation fault
-
