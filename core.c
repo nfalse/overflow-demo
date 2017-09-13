@@ -1,13 +1,14 @@
 /**********************************************************
  * Author        : nfalse
  * Email         : nfalse@163.com
- * Last modified : 2017-08-22 11:48
- * Filename      : overflow.c
- * Description   : 
+ * Last modified : 2017-09-13 16:25
+ * Filename      : core.c
+ * Description   :
  * *******************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #if defined(__arm__)
 #if defined(__ARM_ARCH_7A__)
 #if defined(__ARM_NEON__)
@@ -39,25 +40,89 @@
 #else
 #define ABI "unknown"
 #endif
-#define nop 9       //$rbp - &p + sizeof(p)
-void funcA(char* str)
-{
-    char p;
-    printf("正常代码调用\n");
-    strcpy(&p,str);
-    return;
-}
-void funcB(void *obj)
+//register unsigned long sp asm("sp");
+//register unsigned long bp asm("bp");
+void hook_func(void *obj)
 {
     printf("恶意代码被调用\n");
     exit(0);
 }
-void main()
+void stack_overflow_target(char* str)
 {
-    char over[nop+sizeof(void*)+1];
-    memset(over,'A',nop);
-    over[nop+sizeof(void*)] ='\0';
-    long addres=(long)funcB;
-    memcpy(over+nop,&addres,sizeof(addres));
-    funcA(over);
+    char p;
+    printf("$rbp %p\n",&p + sizeof(p));
+    printf("return address %p\n",(void*)*(long*)(&p + sizeof(p) +sizeof(void*)));
+    printf("hook address %p\n",(void*)hook_func);
+    printf("正常代码调用\n");
+    strcpy(&p,str);
+    printf("return address %p\n",(void*)*(long*)(&p + sizeof(p) + sizeof(void*)));
+    return;
+}
+void stack_overflow_test()
+{
+    int buffer_size = (sizeof(char)+sizeof(void*)+sizeof(void*)+1);
+    char over[buffer_size];
+    memset(over,'A',buffer_size - 1);
+    over[buffer_size] ='\0';
+    long addres=(long)hook_func;
+    memcpy(over+buffer_size-8-1,&addres,sizeof(addres));
+    stack_overflow_target(over);
+}
+struct chunk_structure {
+    size_t prev_size;
+    size_t size;
+    struct chunk_structure *fd;
+    struct chunk_structure *bk;
+    char padding[10];               // padding
+};
+void heap_overflow_test()
+{
+    return;
+}
+typedef void (*func_ptr)(void *);
+void echo(void *content)
+{
+    printf("%s",(char *)content);
+}
+#define index 128
+void ufa()
+{
+    func_ptr *p1= malloc(8192);
+    printf("p1[%p]\n",p1);
+    p1[index]=echo;
+    p1[index]("hello world\n");
+    free(p1);
+    printf("p1[%p] free\n",p1);
+    p1[index]("hello world affter free\n");
+    func_ptr *p2= malloc(8192);
+    printf("p2[%p]\n",p2);
+    p2[3]=hook_func;
+    p1[3](NULL);
+    return;
+}
+int main(int argc,char **argv)
+{
+    int ch;  
+    opterr = 0;  
+    while ((ch = getopt(argc,argv,"shu"))!=-1)  
+    {  
+        switch(ch)  
+        {  
+        case 's':  
+            stack_overflow_test();
+            goto end;
+        case 'h':
+            heap_overflow_test();
+            goto end;
+        case 'u':
+            ufa();
+            goto end;
+        default:
+            break;
+        }  
+    }
+    printf("%s -s -h -u\n",argv[0]);
+    return -1;
+end:
+    return 0;
 }
